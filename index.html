@@ -62,14 +62,21 @@
 </div>
 
 <script>
+const STORAGE_KEY = 'enquete_bombeiros_2026_voto';
+
 const form = document.getElementById('enqueteForm');
 const msg = document.getElementById('mensagem');
 const botao = form.querySelector('button[type="submit"]');
 
+/* ========= BLOQUEIO AO CARREGAR ========= */
+if (localStorage.getItem(STORAGE_KEY)) {
+  bloquearFormulario();
+}
+
+/* ========= SUBMIT ========= */
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  // evita duplo envio
   if (botao.disabled) return;
 
   botao.disabled = true;
@@ -91,22 +98,36 @@ form.addEventListener('submit', async function (e) {
     const result = JSON.parse(text);
 
     if (result.success) {
-      botao.innerText = 'Voto Enviado';
+      // salva bloqueio local
+      localStorage.setItem(STORAGE_KEY, 'true');
+
       msg.innerHTML = '<span class="text-success">Voto registrado com sucesso ✔️</span>';
-      // botão permanece desabilitado
+      botao.innerText = 'Voto enviado';
+      bloquearFormulario();
+
     } else {
-      msg.innerHTML = '<span class="text-danger">Erro no envio. Tente novamente.</span>';
-      botao.disabled = false;
-      botao.innerText = 'Enviar voto';
+      erroEnvio();
     }
 
   } catch (error) {
-    msg.innerHTML = '<span class="text-danger">Falha na conexão.</span>';
-    botao.disabled = false;
-    botao.innerText = 'Enviar voto';
+    erroEnvio();
     console.error(error);
   }
 });
+
+/* ========= FUNÇÕES ========= */
+function bloquearFormulario() {
+  const inputs = form.querySelectorAll('input, select, button');
+  inputs.forEach(el => el.disabled = true);
+
+  msg.innerHTML = '<span class="text-warning">Este dispositivo já registrou um voto.</span>';
+}
+
+function erroEnvio() {
+  msg.innerHTML = '<span class="text-danger">Erro ao enviar. Tente novamente.</span>';
+  botao.disabled = false;
+  botao.innerText = 'Enviar voto';
+}
 </script>
 
 </body>
