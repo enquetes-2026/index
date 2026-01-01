@@ -91,6 +91,7 @@ form.addEventListener('submit', async function (e) {
     const result = JSON.parse(text);
 
     if (result.success) {
+      botao.innerText = 'Voto Enviado';
       msg.innerHTML = '<span class="text-success">Voto registrado com sucesso ✔️</span>';
       // botão permanece desabilitado
     } else {
